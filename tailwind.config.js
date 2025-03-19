@@ -6,10 +6,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: 'purple',
-        secondary: 'black',
-        accent: 'grey',
-        lavender: '#E6E6FA',
+        primary: '#281C2D',
+        secondary: '#8155BA',
+        accent: '#BEAFC2',
+        terciary: '#695E93',
         plum: '#DDA0DD',
         orchid: '#DA70D6',
         fuchsia: '#FF00FF',
