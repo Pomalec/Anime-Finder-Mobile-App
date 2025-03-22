@@ -1,38 +1,51 @@
 export const ABD_CONFIG = {
     BASE_URL: 'https://api.myanimelist.net/v2',
-    API_KEY: process.env.EXPO_PUBLIC_ANIME_API_KEY,
+    CLIENT_ID: process.env.EXPO_PUBLIC_ANIME_API_KEY,
     headers: {
         accept: 'application/json',
-        Authorization: `Bearer ${process.env.EXPO_PUBLIC_ANIME_API_KEY}`
+        'X-MAL-CLIENT-ID': process.env.EXPO_PUBLIC_ANIME_CLIENT_ID, // Add this header
     }
 }
 
-export const getchAnime = async ({query}: {query: string}) => {
+export const fetchAnime = async ({query}: {query: string}) => {
+    if (!ABD_CONFIG.CLIENT_ID) {
+        throw new Error('Client ID is missing. Please set it in the environment variables.');
+    }
     const date = new Date();
     const year = date.getFullYear();
     const month = date.getMonth() + 1; 
-    let season;
+    let season: string;
 
     if (month >= 1 && month <= 3) season = "winter";
     else if (month >= 4 && month <= 6) season = "spring";
     else if (month >= 7 && month <= 9) season = "summer";
     else season = "fall";
+
     const endpoint = query 
-    ? `/anime?q=${encodeURIComponent(query)}`:
-    `/anime/season/${year}/${season}?sort=anime_score`;
-    const response = await fetch(endpoint, {
-        method: 'GET',
-        headers: ABD_CONFIG.headers,
-    });
+    ? `${ABD_CONFIG.BASE_URL}/anime?q=${encodeURIComponent(query)}`
+    : `${ABD_CONFIG.BASE_URL}/anime/season/${year}/${season}?limit=50?sort=anime_score`;
+    try {
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                accept: 'application/json',
+                'X-MAL-CLIENT-ID':ABD_CONFIG.CLIENT_ID,  // Add this header
+            }
+        });
 
-    if (!response.ok) {
-        //@ts-ignore
-        throw new Error('Failed to fetch animes', response.statusText);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch animes: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(data.data)
+        return data.data || [];
+    
+    } catch (error) {
+        console.error(error);
+        throw new Error('Something went wrong while fetching anime.');
     }
-
-    const data = await response.json();
-
-    return data.results;
+   
 }
 
 // import axios from "axios";
