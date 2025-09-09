@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Movie-Flix",
+    "name": "Anime-Flix",
     "slug": "React-Native-App",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
-    "scheme": "movies",
+    "scheme": "animes",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

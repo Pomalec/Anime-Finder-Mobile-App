@@ -7,7 +7,7 @@ name="(tabs)"
 options={{headerShown: false}}>
 </Stack.Screen>
 <Stack.Screen
-name="movie/[id]"
+name="anime/[id]"
 options={{headerShown: false}}
 ></Stack.Screen>
   </Stack>;
