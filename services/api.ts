@@ -23,7 +23,7 @@ export const fetchAnime = async ({query}: {query: string}) => {
 
     const endpoint = query 
     ? `${ABD_CONFIG.BASE_URL}/anime?q=${encodeURIComponent(query)}`
-    : `${ABD_CONFIG.BASE_URL}/anime/season/${year}/${season}?limit=50?sort=anime_score`;
+    : `${ABD_CONFIG.BASE_URL}/anime/season/${year}/${season}?limit=30?sort=anime_score`;
     try {
         const response = await fetch(endpoint, {
             method: 'GET',
@@ -48,6 +48,35 @@ export const fetchAnime = async ({query}: {query: string}) => {
    
 }
 
+export const fetchAnimeDetails = async (anime_id: number) => {
+    if (!ABD_CONFIG.CLIENT_ID) {
+      throw new Error('Client ID is missing. Please set it in the environment variables.');
+    }
+  
+    const endpoint = `${ABD_CONFIG.BASE_URL}/anime/${anime_id}?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics'`;
+    
+  
+    try {
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          'X-MAL-CLIENT-ID': ABD_CONFIG.CLIENT_ID,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to fetch animes: ${response.status} ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Failed to fetch anime details for ID ${anime_id}:`, error);
+      throw new Error('Something went wrong while fetching anime details.');
+    }
+  };
+  
 // import axios from "axios";
 
 // const fetchAnime = async (query: string) => {
