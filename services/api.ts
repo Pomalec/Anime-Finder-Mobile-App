@@ -7,7 +7,7 @@ export const ABD_CONFIG = {
     }
 }
 
-export const fetchAnime = async ({query}: {query: string}) => {
+export const fetchAnime = async ({query, limit = 20, offset = 0}: {query: string, limit?: number, offset?: number}) => {
     if (!ABD_CONFIG.CLIENT_ID) {
         throw new Error('Client ID is missing. Please set it in the environment variables.');
     }
@@ -22,8 +22,9 @@ export const fetchAnime = async ({query}: {query: string}) => {
     else season = "fall";
 
     const endpoint = query 
-    ? `${ABD_CONFIG.BASE_URL}/anime?q=${encodeURIComponent(query)}`
-    : `${ABD_CONFIG.BASE_URL}/anime/season/${year}/${season}?limit=30?sort=anime_score`;
+    ? `${ABD_CONFIG.BASE_URL}/anime?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`
+    : `${ABD_CONFIG.BASE_URL}/anime/season/${year}/${season}?limit=${limit}&offset=${offset}&sort=anime_score`;
+    
     try {
         const response = await fetch(endpoint, {
             method: 'GET',
@@ -34,12 +35,15 @@ export const fetchAnime = async ({query}: {query: string}) => {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch animes: ${response.status} ${response.statusText}`);
+            throw new Error(`Failed to fetch animes: ${response.status} ${response.status}`);
         }
 
         const data = await response.json();
-        console.log(data.data)
-        return data.data || [];
+        console.log(`📊 Fetched ${data.data?.length || 0} anime items (offset: ${offset})`)
+        return {
+            data: data.data || [],
+            paging: data.paging || null,
+        };
     
     } catch (error) {
         console.error(error);

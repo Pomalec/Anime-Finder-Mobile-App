@@ -1,8 +1,7 @@
 import { View, Text, TouchableOpacity, Image, Dimensions, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'expo-router'
-import { fetchAnime, fetchAnimeDetails } from '@/services/api';
-import useFetch from '@/services/useFetch';
+import { useAnimeDetails } from '@/services/useAnimeDetails';
 import { icons } from '@/constants/icons';
 const { width, height } = Dimensions.get('window');
 
@@ -14,10 +13,9 @@ const { width, height } = Dimensions.get('window');
 //     query:''}
 //   ))
 const AnimeCard = ({id, main_picture,title }: Anime) => {
-    const [animeDetails, setAnimeDetails] = useState<any>(null); 
-    const [loading, setLoading] = useState(true);
+    const { data: animeDetails, loading, error } = useAnimeDetails(id);
     const cardWidth = (Dimensions.get('window').width - 100) / 3; // 3 cards + gap
-    const cardHeight = 500; // Fixed height for all cards
+    const cardHeight = 300; // Fixed height for all cards
     const [imageHeight, setImageHeight] = useState(200); // default height
 
 useEffect(() => {
@@ -40,33 +38,17 @@ useEffect(() => {
 }, [main_picture.large]);
 
 
-    useEffect(()=>{
-        const fetchDetails = async () => {
-            try {
-              const data = await fetchAnimeDetails(id); // Pass the ID to fetch details
-              setAnimeDetails(data);
-            } catch (error) {
-              console.error(`Failed to fetch anime details for ID ${id}:`, error);
-            } finally {
-              setLoading(false);
-            }
-          };
-          fetchDetails(); // Call the function within useEffect
-        }, [id]); // Add 'id' as a dependency
-       
-        console.log(id);
-    console.log(title);
-    console.log(main_picture.large);
+
   return (
-   <Link href={`/anime/${id}`} asChild>
-  <TouchableOpacity className='w-[33%] h-full'>
+   <Link href={`/animes/${id}`} asChild>
+  <TouchableOpacity className='w-[31%] h-full'>
     <Image
       source={{
         uri: main_picture.large || "https://placehold.co/600x400/1a1a1a/ffffff.png"
       }}
       // className='w-full h-60 rounded-lg'
        style={{ width: '100%', height: cardHeight, borderRadius: 10 }}
-      resizeMode='cover' // use cover for better scaling
+      resizeMode='contain' // use cover for better scaling
     />
     <Text className='text-sm font-bold text-white mt-2' numberOfLines={2}>
       {title}
@@ -81,6 +63,19 @@ useEffect(() => {
         <Text className='text-gray-400 text-xs'>No rating available</Text>
       )}
     </View>
+    <View className='flex-row items-center justify-between '>
+       {animeDetails && animeDetails.start_date !== null && animeDetails.start_date !== undefined ? (
+        <>
+         
+          <Text className='flex-row text-white text-xs font-bold uppercase'>{animeDetails.start_date?.split('-')[0]}</Text>
+        </>
+      ) : (
+        <Text className='text-gray-400 text-xs'>No year available</Text>
+      )}
+      <Text className='text-gray-400 font-medium text-xs uppercase '>
+        {animeDetails?.media_type || 'Unknown'}
+      </Text>
+      </View>
   </TouchableOpacity>
 </Link>
 
